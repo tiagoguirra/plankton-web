@@ -1,0 +1,8 @@
+{
+  "UserNotFoundException": "Incorrect username or password",
+  "NotAuthorizedException": "Incorrect username or password",
+  "CodeMismatchException": "Invalid verification code",
+  "ExpiredCodeException": "Verification code expired",
+  "InvalidPasswordException": "Incorrect username or password",
+  "UsernameExistsException": "Username already exists, try sign in"
+}
