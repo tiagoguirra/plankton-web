@@ -13,6 +13,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [signUpUser, setSignUpUser] = useState<SignUpProcess>()
+  const [recoveryUser, setRecoveryUser] = useState<SignUpProcess>()
   const [user, setUser] = useState<AuthUser>()
 
   const storage = (autentication: AuthResponse) => {
@@ -50,7 +51,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return null
       } catch (err) {
         // @ts-expect-error
-        return err?.code
+        const code = err?.code
+
+        if (code === 'UserNotConfirmedException') {
+          const { codeDeliveryDetails } = await Auth.resendSignUp(username)
+
+          setSignUpUser({
+            email: username,
+            destination: codeDeliveryDetails.Destination
+          })
+        }
+
+        return code
       }
     },
     []
@@ -63,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password: string
     ): Promise<string | null> => {
       try {
-        const { codeDeliveryDetails } = await await Auth.signUp({
+        const { codeDeliveryDetails } = await Auth.signUp({
           username: email,
           password,
           attributes: {
@@ -71,11 +83,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             name
           }
         })
+        console.log(codeDeliveryDetails)
 
         setSignUpUser({
           email,
-          destination: codeDeliveryDetails.Destination,
-          sendAt: new Date()
+          destination: codeDeliveryDetails.Destination
         })
         return null
       } catch (err) {
@@ -88,18 +100,59 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const confirmSignUp = useCallback(
     async (email: string, code: string): Promise<string | null> => {
-      const response = await Auth.confirmSignUp(email, code)
-      console.log(response)
-      return null
+      try {
+        await Auth.confirmSignUp(email, code)
+        return null
+      } catch (err) {
+        // @ts-expect-error
+        return err?.code
+      }
     },
     []
   )
 
   const resendSignUp = useCallback(
     async (email: string): Promise<string | null> => {
-      const response = await Auth.resendSignUp(email)
-      console.log(response)
-      return null
+      try {
+        await Auth.resendSignUp(email)
+        return null
+      } catch (err) {
+        // @ts-expect-error
+        return err?.code
+      }
+    },
+    []
+  )
+
+  const recoveryPassword = useCallback(
+    async (email: string): Promise<string | null> => {
+      try {
+        const { CodeDeliveryDetails } = await Auth.forgotPassword(email)
+
+        setRecoveryUser({
+          email,
+          destination: CodeDeliveryDetails.Destination
+        })
+
+        return null
+      } catch (err) {
+        console.log(err)
+        // @ts-expect-error
+        return err?.code
+      }
+    },
+    [recoveryUser]
+  )
+
+  const confirmRecoveryPassword = useCallback(
+    async (email: string, code: string, password: string) => {
+      try {
+        await Auth.forgotPasswordSubmit(email, code, password)
+        return null
+      } catch (err) {
+        // @ts-expect-error
+        return err?.code
+      }
     },
     []
   )
@@ -128,18 +181,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     validate()
   }, [])
 
+  const setRecovery = useCallback(
+    (user: SignUpProcess) => setRecoveryUser({ ...recoveryUser, ...user }),
+    [recoveryUser]
+  )
+
   const providerState = useMemo(
     () => ({
       user,
       signUpUser,
+      recoveryUser,
+      setRecovery,
       signIn,
       signUp,
       signOut,
       confirmSignUp,
       resendSignUp,
-      validate
+      validate,
+      recoveryPassword,
+      confirmRecoveryPassword
     }),
-    [user]
+    [user, signUpUser]
   )
 
   return (

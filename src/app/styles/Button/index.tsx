@@ -16,6 +16,7 @@ interface ButtonProps {
   fullWidth?: boolean
   startIcon?: React.ReactNode
   submit?: boolean
+  onClick?: () => void
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -25,7 +26,8 @@ export const Button: React.FC<ButtonProps> = ({
   color,
   fullWidth = false,
   startIcon,
-  submit
+  submit,
+  onClick
 }) => {
   return (
     <Btn
@@ -36,6 +38,7 @@ export const Button: React.FC<ButtonProps> = ({
       fullWidth={fullWidth}
       size="medium"
       startIcon={startIcon}
+      onClick={onClick}
     >
       {children}
     </Btn>

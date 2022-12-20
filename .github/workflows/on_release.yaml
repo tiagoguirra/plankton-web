@@ -1,0 +1,57 @@
+name: Deploy release
+on:
+  push:
+    branches:
+      - 'release/staging'
+      - 'release/production'
+
+jobs:
+  build:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    env:
+      DISTRIBUTION_ID_staging: E29JNVRVRIALFQ
+      DISTRIBUTION_ID_production: E2HTJ28HAQI3B1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'yarn'
+
+      - name: Enable cache for packages
+        id: cache
+        uses: actions/cache@v2 
+        with:
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            ${{ github.workspace }}/.yarn
+            ${{ github.workspace }}/node_modules
+
+      - name: Install packages
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn install
+
+      - name: Get Environment name
+        id: environment-name
+        run: echo ::set-output name=environment::${{ github.ref_name }} | sed 's/release\///g'
+
+      - name: Build for specific env
+        run: yarn build:${{ steps.environment-name.outputs.environment }}
+
+      - name: Upload build to S3 Bucket
+        run: |
+          aws s3 sync dist s3://plankton-client/web/${{ steps.environment-name.outputs.environment }}/dist --delete
+      
+      - name: Upload index.html to S3 Bucket
+        run: |
+          aws s3 cp index.html s3://plankton-client/web/${{ steps.environment-name.outputs.environment }}/index.html
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID_${{ steps.environment-name.outputs.environment}} --paths "/*"
+      

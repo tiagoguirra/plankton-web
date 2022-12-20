@@ -1,4 +1,3 @@
-import { OutlinedInput } from '@mui/material'
 import styled from 'styled-components'
 import colors from '../../styles/colors'
 
@@ -22,7 +21,7 @@ export const Form = styled.form`
 export const CardBox = styled.div`
   width: 400px;
   height: 100%;
-  padding: 100px;
+  padding: 0px 100px;
   position: relative;
   background-color: #fff;
   display: flex;
@@ -58,16 +57,4 @@ export const Footer = styled.div`
   align-items: center;
   justify-content: center;
   color: #ccc;
-`
-export const CodeForm = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 30px;
-`
-
-export const CodeInput = styled(OutlinedInput)`
-  border-radius: 10px !important;
-  width: 40px;
 `

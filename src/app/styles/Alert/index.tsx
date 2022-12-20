@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AlertColor, IconButton } from '@mui/material'
 import { Close } from '@mui/icons-material'
-import { useTranslation } from 'react-i18next'
 import { AlertCard, AlertCollapse } from './style'
 
 interface AlertProps {
@@ -10,8 +9,7 @@ interface AlertProps {
 }
 
 export const AlertMessage: React.FC<AlertProps> = ({ text, type = 'info' }) => {
-  const { t } = useTranslation()
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = useState(true)
 
   useEffect(() => {
     setOpen(true)
@@ -36,7 +34,7 @@ export const AlertMessage: React.FC<AlertProps> = ({ text, type = 'info' }) => {
         }
         severity={type}
       >
-        {t(text)}
+        {text}
       </AlertCard>
     </AlertCollapse>
   )

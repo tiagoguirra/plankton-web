@@ -18,17 +18,8 @@ export interface SignUp {
 
 export interface SignUpProcess {
   email: string
-  destination: string
-  sendAt: Date
-}
-
-export interface SignUpConfirm {
-  a: string
-  b: string
-  c: string
-  d: string
-  e: string
-  f: string
+  code?: string
+  destination?: string
 }
 
 export interface AuthResponse {

@@ -1,13 +1,14 @@
 import React, { useContext, useState } from 'react'
 import { Formik } from 'formik'
-import { Footer, Form, Header } from './style'
-import { InputField } from '../../styles/InputField'
-import { Button } from '../../styles/Button'
+import { Footer, Form, Header } from '../style'
+import { InputField } from '../../../styles/InputField'
+import { Button } from '../../../styles/Button'
 import { useNavigate } from 'react-router-dom'
 import { AlertColor, Link } from '@mui/material'
-import { AuthContext } from '../../context/Auth/context'
-import { SignUp } from '../../types/auth'
-import { AlertMessage } from '../../styles/Alert'
+import { AuthContext } from '../../../context/Auth/context'
+import { SignUp } from '../../../types/auth'
+import { AlertMessage } from '../../../styles/Alert'
+import { useTranslation } from 'react-i18next'
 
 const initialValues: SignUp = {
   email: '',
@@ -18,6 +19,7 @@ const initialValues: SignUp = {
 
 export const SignUpPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { signUp } = useContext(AuthContext)
   const [message, setMessage] = useState<{
     message: string
@@ -29,11 +31,11 @@ export const SignUpPage: React.FC = () => {
 
     if (error) {
       setMessage({
-        message: error,
+        message: t(error),
         type: 'error'
       })
     } else {
-      navigate('/confirmSignUp')
+      navigate('confirm')
     }
   }
 
@@ -42,9 +44,9 @@ export const SignUpPage: React.FC = () => {
       <Formik initialValues={initialValues} onSubmit={onSubmit}>
         {({ errors, touched, handleChange, handleSubmit, isSubmitting }) => (
           <Form onSubmit={handleSubmit}>
-            <Header>Sign Up</Header>
+            <Header>{t('auth.sign_up')}</Header>
             <InputField
-              label="Name"
+              label={t('auth.name')}
               type="text"
               name="name"
               onChange={handleChange}
@@ -52,7 +54,7 @@ export const SignUpPage: React.FC = () => {
               touched={touched.name}
             />
             <InputField
-              label="E-mail"
+              label={t('auth.email')}
               type="email"
               name="email"
               onChange={handleChange}
@@ -61,7 +63,7 @@ export const SignUpPage: React.FC = () => {
             />
 
             <InputField
-              label="Password"
+              label={t('auth.password')}
               type="password"
               name="password"
               onChange={handleChange}
@@ -70,7 +72,7 @@ export const SignUpPage: React.FC = () => {
             />
 
             <InputField
-              label="Confirm password"
+              label={t('auth.confirm_password')}
               type="password"
               name="confirmPassword"
               onChange={handleChange}
@@ -85,20 +87,20 @@ export const SignUpPage: React.FC = () => {
               disabled={isSubmitting}
               submit
             >
-              Sign Up
+              {t('auth.sign_up')}
             </Button>
           </Form>
         )}
       </Formik>
       <AlertMessage text={message?.message} type={message?.type} />
       <Footer>
-        Already have an account? &nbsp;
+        {t('auth.already_have_account')} &nbsp;
         <Link
           onClick={() => navigate('/signIn')}
           color="secondary"
           underline="none"
         >
-          Sign In
+          {t('auth.sign_in')}
         </Link>
       </Footer>
     </>

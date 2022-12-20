@@ -4,5 +4,27 @@
   "CodeMismatchException": "Invalid verification code",
   "ExpiredCodeException": "Verification code expired",
   "InvalidPasswordException": "Incorrect username or password",
-  "UsernameExistsException": "Username already exists, try sign in"
+  "UsernameExistsException": "Username already exists, try sign in",
+  "LimitExceededException": "Attempt limit exceeded, please try after some time",
+  "auth": {
+    "dont_receive_code": "Didn't receive a code?",
+    "resend_code": "Resend code",
+    "resend_code_in": "Resend code in",
+    "verify": "Verify",
+    "dont_rave_account": "Don't have an account?",
+    "sign_up": "Sign up",
+    "sign_in": "Sign in",
+    "forgot_password": "Forgot password?",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm password",
+    "name": "Name",
+    "already_have_account": "Already have an account?",
+    "recovery_password": "Recovery password",
+    "recovery_code": "Recovery code",
+    "password_not_match": "Passwords do not match",
+    "send": "Send",
+    "recovery_helper": "Enter your email address and we will send you a recovery code",
+    "recovery_code_helper": "Enter the recovery code we sent to your email"
+  }
 }

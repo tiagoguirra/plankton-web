@@ -1,13 +1,15 @@
 import React, { useContext, useState } from 'react'
 import { Formik } from 'formik'
-import { Footer, Form, Header } from './style'
-import { InputField } from '../../styles/InputField'
-import { Button } from '../../styles/Button'
+import { Footer, Form, Header } from '../style'
+import { ForgotLink, ForgotPassword } from './styles'
+import { InputField } from '../../../styles/InputField'
+import { Button } from '../../../styles/Button'
 import { Link, AlertColor } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../../context/Auth/context'
-import { SignIn } from '../../types/auth'
-import { AlertMessage } from '../../styles/Alert'
+import { AuthContext } from '../../../context/Auth/context'
+import { SignIn } from '../../../types/auth'
+import { AlertMessage } from '../../../styles/Alert'
+import { useTranslation } from 'react-i18next'
 
 const initialValues: SignIn = {
   email: '',
@@ -16,6 +18,7 @@ const initialValues: SignIn = {
 
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { signIn } = useContext(AuthContext)
   const [message, setMessage] = useState<{
     message: string
@@ -26,10 +29,10 @@ export const SignInPage: React.FC = () => {
     const error = await signIn(values.email, values.password)
     if (error) {
       if (error === 'UserNotConfirmedException') {
-        navigate('/confirmSignUp')
+        navigate('confirm')
       } else {
         setMessage({
-          message: error,
+          message: t(error),
           type: 'error'
         })
       }
@@ -41,9 +44,9 @@ export const SignInPage: React.FC = () => {
       <Formik initialValues={initialValues} onSubmit={onSubmit}>
         {({ errors, touched, handleChange, handleSubmit, isSubmitting }) => (
           <Form onSubmit={handleSubmit}>
-            <Header>Sign In</Header>
+            <Header>{t('auth.sign_in')}</Header>
             <InputField
-              label="E-mail"
+              label={t('auth.email')}
               type="email"
               name="email"
               onChange={handleChange}
@@ -52,13 +55,18 @@ export const SignInPage: React.FC = () => {
             />
 
             <InputField
-              label="Password"
+              label={t('auth.password')}
               type="password"
               name="password"
               onChange={handleChange}
               error={errors.password}
               touched={touched.password}
             />
+            <ForgotPassword>
+              <ForgotLink onClick={() => navigate('/forgot-password')} underline="none">
+                {t('auth.forgot_password')}
+              </ForgotLink>
+            </ForgotPassword>
 
             <Button
               color="primary"
@@ -67,20 +75,21 @@ export const SignInPage: React.FC = () => {
               disabled={isSubmitting}
               submit
             >
-              Sign In
+              {t('auth.sign_in')}
             </Button>
           </Form>
         )}
       </Formik>
+
       <AlertMessage text={message?.message} type={message?.type} />
       <Footer>
-        Don&#39;t have an account? &nbsp;
+        {t('auth.dont_rave_account')} &nbsp;
         <Link
           onClick={() => navigate('/signUp')}
           color="secondary"
           underline="none"
         >
-          Sign Up
+          {t('auth.sign_up')}
         </Link>
       </Footer>
     </>
