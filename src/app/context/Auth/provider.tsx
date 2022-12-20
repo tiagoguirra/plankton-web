@@ -201,7 +201,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       recoveryPassword,
       confirmRecoveryPassword
     }),
-    [user, signUpUser]
+    [user, signUpUser, recoveryUser]
   )
 
   return (
