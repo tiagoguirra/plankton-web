@@ -43,13 +43,16 @@ jobs:
       - name: Build for specific env
         run: yarn build:${{ steps.environment-name.outputs.environment }}
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_PLANKTON_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_PLANKTON_SECRET_KEY_ID }}
+          aws-region: sa-east-1
+
       - name: Upload build to S3 Bucket
         run: |
           aws s3 sync dist s3://plankton-client/web/${{ steps.environment-name.outputs.environment }}/dist --delete
-      
-      - name: Upload index.html to S3 Bucket
-        run: |
-          aws s3 cp index.html s3://plankton-client/web/${{ steps.environment-name.outputs.environment }}/index.html
 
       - name: Invalidate CloudFront cache
         run: |
