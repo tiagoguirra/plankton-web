@@ -3,6 +3,7 @@ export default {
     Auth: {
       region: 'sa-east-1',
       userPoolId: 'sa-east-1_1RMJOWfmm',
+      userPoolWebClientId: 'i2tqfa2linpogdnamqbodh1sn',
       oauth: {
         domain: 'plankton.auth.sa-east-1.amazoncognito.com',
         scope: [

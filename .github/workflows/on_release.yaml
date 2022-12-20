@@ -52,7 +52,7 @@ jobs:
 
       - name: Upload build to S3 Bucket
         run: |
-          aws s3 sync dist s3://plankton-client/web/${{ steps.environment-name.outputs.environment }}/dist --delete
+          aws s3 sync build s3://plankton-client/web/${{ steps.environment-name.outputs.environment }} --delete
 
       - name: Invalidate CloudFront cache
         run: |
