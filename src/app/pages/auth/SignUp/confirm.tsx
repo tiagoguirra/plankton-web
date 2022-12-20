@@ -43,6 +43,8 @@ export const ConfirmSignUpPage: React.FC = () => {
         message: t(error),
         type: 'error'
       })
+    } else {
+      navigate('/signIn')
     }
   }
 
