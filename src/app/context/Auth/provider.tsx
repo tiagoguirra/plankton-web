@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { AuthResponse, AuthUser } from '../../types/auth'
+import { AuthUser } from '../../types/auth'
 import { AuthContext } from './context'
-import { Amplify, Auth } from 'aws-amplify'
+import { Amplify, Auth, Hub } from 'aws-amplify'
 import config from '../../config'
 import { SignUpProcess } from '../../types/auth'
 
@@ -14,66 +14,46 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [signUpUser, setSignUpUser] = useState<SignUpProcess>()
   const [recoveryUser, setRecoveryUser] = useState<SignUpProcess>()
-  const [user, setUser] = useState<AuthUser>()
+  const [user, setUser] = useState<AuthUser | null>()
+  const [error, setError] = useState<string | null>()
 
-  const storage = (autentication: AuthResponse) => {
-    global.window.localStorage.setItem('auth', JSON.stringify(autentication))
-  }
-
-  const signOut = useCallback(async (): Promise<string | null> => {
+  const signOut = useCallback(async (): Promise<void> => {
     try {
-      global.window.localStorage.removeItem('auth')
       await Auth.signOut()
-      return null
+      setUser(null)
+      setError(null)
     } catch (err) {
       // @ts-expect-error
-      return err?.code
+      const code = err?.code
+      setError(code)
+      throw new Error(code)
     }
-  }, [])
+  }, [user])
 
   const signIn = useCallback(
-    async (username: string, password: string): Promise<string | null> => {
+    async (username: string, password: string): Promise<void> => {
       try {
         const { signInUserSession } = await Auth.signIn(username, password)
-        const { accessToken, refreshToken, idToken } = signInUserSession
+        const { accessToken } = signInUserSession
 
-        storage({
-          accessToken: accessToken.jwtToken,
-          expiresIn: accessToken.payload.exp,
-          refreshToken: refreshToken.token,
-          idToken: idToken.jwtToken
-        })
         setUser({
           name: accessToken.payload.name,
           email: accessToken.payload.email,
           avatar: accessToken.payload?.picture
         })
-        return null
+        setError(null)
       } catch (err) {
         // @ts-expect-error
         const code = err?.code
-
-        if (code === 'UserNotConfirmedException') {
-          const { codeDeliveryDetails } = await Auth.resendSignUp(username)
-
-          setSignUpUser({
-            email: username,
-            destination: codeDeliveryDetails.Destination
-          })
-        }
-
-        return code
+        setError(code)
+        throw new Error(code)
       }
     },
     []
   )
 
   const signUp = useCallback(
-    async (
-      name: string,
-      email: string,
-      password: string
-    ): Promise<string | null> => {
+    async (name: string, email: string, password: string): Promise<void> => {
       try {
         const { codeDeliveryDetails } = await Auth.signUp({
           username: email,
@@ -89,43 +69,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email,
           destination: codeDeliveryDetails.Destination
         })
-        return null
+        setError(null)
       } catch (err) {
         // @ts-expect-error
-        return err?.code
+        const code = err?.code
+        setError(code)
+        throw new Error(code)
       }
     },
     []
   )
 
   const confirmSignUp = useCallback(
-    async (email: string, code: string): Promise<string | null> => {
+    async (email: string, code: string): Promise<void> => {
       try {
         await Auth.confirmSignUp(email, code)
-        return null
+        setError(null)
       } catch (err) {
         // @ts-expect-error
-        return err?.code
+        const code = err?.code
+        setError(code)
+        throw new Error(code)
       }
     },
     []
   )
 
-  const resendSignUp = useCallback(
-    async (email: string): Promise<string | null> => {
-      try {
-        await Auth.resendSignUp(email)
-        return null
-      } catch (err) {
-        // @ts-expect-error
-        return err?.code
-      }
-    },
-    []
-  )
+  const resendSignUp = useCallback(async (email: string): Promise<void> => {
+    try {
+      const { codeDeliveryDetails } = await Auth.resendSignUp(email)
+      setSignUpUser({
+        email,
+        destination: codeDeliveryDetails.Destination
+      })
+      setError(null)
+    } catch (err) {
+      // @ts-expect-error
+      const code = err?.code
+      setError(code)
+      throw new Error(code)
+    }
+  }, [])
 
   const recoveryPassword = useCallback(
-    async (email: string): Promise<string | null> => {
+    async (email: string): Promise<void> => {
       try {
         const { CodeDeliveryDetails } = await Auth.forgotPassword(email)
 
@@ -133,61 +120,84 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email,
           destination: CodeDeliveryDetails.Destination
         })
-
-        return null
+        setError(null)
       } catch (err) {
-        console.log(err)
         // @ts-expect-error
-        return err?.code
+        const code = err?.code
+        setError(code)
+        throw new Error(code)
       }
     },
     [recoveryUser]
   )
 
   const confirmRecoveryPassword = useCallback(
-    async (email: string, code: string, password: string) => {
+    async (email: string, code: string, password: string): Promise<void> => {
       try {
         await Auth.forgotPasswordSubmit(email, code, password)
-        return null
+        setError(null)
       } catch (err) {
         // @ts-expect-error
-        return err?.code
+        const code = err?.code
+        setError(code)
+        throw new Error(code)
       }
     },
     []
   )
 
-  const validate = useCallback(async () => {
-    try {
-      const session = await Auth.currentSession()
-
-      if (session && session.isValid()) {
-        const accessToken = session.getAccessToken()
-        console.log(accessToken)
-        setUser({
-          name: accessToken.payload.name,
-          email: accessToken.payload.email,
-          avatar: accessToken.payload?.picture
-        })
-      }
-    } catch (err) {
-      console.info('No session found')
-      setUser(undefined)
-      global.window.localStorage.removeItem('auth')
-    }
-  }, [])
-
-  useEffect(() => {
-    validate()
-  }, [])
-
   const setRecovery = useCallback(
     (user: SignUpProcess) => setRecoveryUser({ ...recoveryUser, ...user }),
     [recoveryUser]
   )
+  const checkUser = useCallback(async (): Promise<void> => {
+    try {
+      const { attributes } = await Auth.currentAuthenticatedUser()
+      setUser({
+        name: attributes.name,
+        email: attributes.email,
+        avatar: attributes.picture
+      })
+    } catch {
+      setUser(null)
+    }
+  }, [user])
+
+  useEffect(() => {
+    checkUser()
+    const unsubscribe = Hub.listen('auth', ({ payload }) => {
+      const { event, data } = payload
+      switch (event) {
+        case 'cognitoHostedUI':
+          return checkUser()
+        case 'cognitoHostedUI_failure':
+          setError(`cognitoHostedUI_failure_${data?.message || ''}`)
+          break
+        default:
+          console.log(event, data)
+          break
+      }
+    })
+
+    return unsubscribe
+  }, [])
+
+  const signInWith = useCallback(async (provider: string): Promise<void> => {
+    try {
+      console.log(provider)
+      const response = await Auth.federatedSignIn({ customProvider: provider })
+      console.log(response)
+    } catch (err) {
+      // @ts-expect-error
+      const code = err?.code
+      setError(code)
+      throw new Error(code)
+    }
+  }, [])
 
   const providerState = useMemo(
     () => ({
+      error,
       user,
       signUpUser,
       recoveryUser,
@@ -197,11 +207,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       signOut,
       confirmSignUp,
       resendSignUp,
-      validate,
       recoveryPassword,
-      confirmRecoveryPassword
+      confirmRecoveryPassword,
+      signInWith
     }),
-    [user, signUpUser, recoveryUser]
+    [ user, signUpUser, recoveryUser]
   )
 
   return (

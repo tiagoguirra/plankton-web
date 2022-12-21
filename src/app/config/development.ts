@@ -15,8 +15,8 @@ export default {
           'openid',
           'aws.cognito.signin.user.admin'
         ],
-        redirectSignIn: 'https://app-stg.planktondoc.com',
-        redirectSignOut: 'https://app-stg.planktondoc.com',
+        redirectSignIn: 'http://localhost:3000',
+        redirectSignOut: 'http://localhost:3000',
         responseType: 'code'
       }
     }

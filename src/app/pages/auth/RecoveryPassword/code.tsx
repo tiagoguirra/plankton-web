@@ -1,13 +1,12 @@
-import { AlertColor, Link } from '@mui/material'
+import { Link } from '@mui/material'
 import { Formik } from 'formik'
 import React, { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../../context/Auth/context'
-import { AlertMessage } from '../../../styles/Alert'
-import { Button } from '../../../styles/Button'
-import { InputField } from '../../../styles/InputField'
-import { VerificationCode } from '../../../styles/VerificationCode'
+import { Button } from '../../../components/Button'
+import { InputField } from '../../../components/InputField'
+import { VerificationCode } from '../../../components/VerificationCode'
 import { Footer, Form, Header } from '../style'
 
 interface RecoveryPassword {
@@ -29,11 +28,6 @@ export const RecoveryCodePage: React.FC = () => {
 
   const [counter, setCounter] = useState<number>(30)
 
-  const [message, setMessage] = useState<{
-    message: string
-    type: AlertColor
-  }>()
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setCounter(counter > 0 ? counter - 1 : 0)
@@ -42,50 +36,31 @@ export const RecoveryCodePage: React.FC = () => {
   })
 
   useEffect(() => {
-    console.log(recoveryUser)
     if (!recoveryUser?.email) {
       navigate('/forgot-password')
     }
   }, [])
 
   const onSubmit = async ({ password }: RecoveryPassword) => {
-    const error = await confirmRecoveryPassword(
-      recoveryUser?.email || '',
-      code,
-      password
-    )
-    if (error) {
-      if (error === 'CodeMismatchException') {
+    try {
+      await confirmRecoveryPassword(recoveryUser?.email || '', code, password)
+      navigate('/signIn')
+    } catch (code) {
+      if (code === 'CodeMismatchException') {
         setCode('')
       }
-      setMessage({
-        message: t(error),
-        type: 'error'
-      })
-    } else {
-      navigate('/signIn')
     }
   }
 
-  const resend = async () => {
-    const error = await recoveryPassword(recoveryUser?.email || '')
-    if (error) {
-      setMessage({
-        message: t(error),
-        type: 'error'
-      })
-    } else {
+  const resend = () => {
+    return recoveryPassword(recoveryUser?.email || '').then(() => {
       setCode('')
-      setMessage(undefined)
       setCounter(30)
-    }
+    })
   }
 
   const onChangeCode = (code: string) => {
     setCode(code)
-    if (message && code) {
-      setMessage(undefined)
-    }
   }
 
   return (
@@ -94,7 +69,9 @@ export const RecoveryCodePage: React.FC = () => {
         {({ errors, touched, handleChange, handleSubmit, isSubmitting }) => (
           <Form onSubmit={handleSubmit}>
             <Header>{t('auth.recovery_password')}</Header>
-            {code.length < 6 && <VerificationCode value={code} onChange={onChangeCode} />}
+            {code.length < 6 && (
+              <VerificationCode value={code} onChange={onChangeCode} />
+            )}
             {code.length === 6 && (
               <>
                 <InputField
@@ -130,7 +107,6 @@ export const RecoveryCodePage: React.FC = () => {
         )}
       </Formik>
 
-      <AlertMessage text={message?.message} type={message?.type} />
       {code.length < 6 && (
         <Footer>
           {t('auth.dont_receive_code')} &nbsp;

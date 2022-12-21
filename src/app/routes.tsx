@@ -1,8 +1,9 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { Layout } from './components/Layout'
 import { AuthProvider } from './context/Auth/provider'
-import Auth from './pages/auth/auth'
 import { Protected } from './pages/auth/protected'
+import { DashboardPage } from './pages/dashboard'
 
 const Router = () => {
   return (
@@ -12,12 +13,14 @@ const Router = () => {
           element={
             <AuthProvider>
               <Protected>
-                <Auth />
+                <Layout />
               </Protected>
             </AuthProvider>
           }
           path="*"
-        />
+        >
+          <Route element={<DashboardPage />} path="dashboard" />
+        </Route>
       </Routes>
     </BrowserRouter>
   )

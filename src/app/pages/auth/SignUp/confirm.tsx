@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Footer } from '../style'
-import { Button } from '../../../styles/Button'
-import { AlertColor, Link } from '@mui/material'
+import { Button } from '../../../components/Button'
+import { Link } from '@mui/material'
 import { AuthContext } from '../../../context/Auth/context'
-import { AlertMessage } from '../../../styles/Alert'
-import { VerificationCode } from '../../../styles/VerificationCode'
+import { VerificationCode } from '../../../components/VerificationCode'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,11 +14,6 @@ export const ConfirmSignUpPage: React.FC = () => {
 
   const [counter, setCounter] = useState<number>(30)
   const [code, setCode] = useState<string>('')
-
-  const [message, setMessage] = useState<{
-    message: string
-    type: AlertColor
-  }>()
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,15 +30,11 @@ export const ConfirmSignUpPage: React.FC = () => {
   }, [])
 
   const onSubmit = async (code: string) => {
-    const error = await confirmSignUp(signUpUser?.email || '', code)
-    if (error) {
-      setCode('')
-      setMessage({
-        message: t(error),
-        type: 'error'
-      })
-    } else {
+    try {
+      await confirmSignUp(signUpUser?.email || '', code)
       navigate('/signIn')
+    } catch {
+      setCode('')
     }
   }
 
@@ -57,15 +47,11 @@ export const ConfirmSignUpPage: React.FC = () => {
   }
 
   const resend = async () => {
-    const error = await resendSignUp(signUpUser?.email || '')
-    if (error) {
-      setCode('')
-      setMessage({
-        message: t(error),
-        type: 'error'
-      })
-    } else {
+    try {
+      await resendSignUp(signUpUser?.email || '')
       setCounter(30)
+    } catch {
+      setCode('')
     }
   }
 
@@ -81,7 +67,6 @@ export const ConfirmSignUpPage: React.FC = () => {
       >
         {t('auth.verify')}
       </Button>
-      <AlertMessage text={message?.message} type={message?.type} />
       <Footer>
         {t('auth.dont_receive_code')} &nbsp;
         {counter > 0 ? (

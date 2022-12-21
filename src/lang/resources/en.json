@@ -6,6 +6,8 @@
   "InvalidPasswordException": "Incorrect username or password",
   "UsernameExistsException": "Username already exists, try sign in",
   "LimitExceededException": "Attempt limit exceeded, please try after some time",
+  "cognitoHostedUI_failure_invalid_request": "Sign in failed",
+  "cognitoHostedUI_failure_": "Sign in failed",
   "auth": {
     "dont_receive_code": "Didn't receive a code?",
     "resend_code": "Resend code",

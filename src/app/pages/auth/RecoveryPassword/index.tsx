@@ -1,12 +1,10 @@
-import { AlertColor } from '@mui/material'
 import { Formik } from 'formik'
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../../context/Auth/context'
-import { AlertMessage } from '../../../styles/Alert'
-import { Button } from '../../../styles/Button'
-import { InputField } from '../../../styles/InputField'
+import { Button } from '../../../components/Button'
+import { InputField } from '../../../components/InputField'
 
 import { Form, Header, Helper } from '../style'
 interface ForgotPassword {
@@ -21,23 +19,8 @@ export const ForgotPasswordPage: React.FC = () => {
   const { t } = useTranslation()
   const { recoveryPassword } = useContext(AuthContext)
 
-  const [message, setMessage] = useState<{
-    message: string
-    type: AlertColor
-  }>()
-
-  const onSubmit = async ({ email }: ForgotPassword) => {
-    console.log(email)
-    const error = await recoveryPassword(email)
-
-    if (error) {
-      setMessage({
-        message: t(error),
-        type: 'error'
-      })
-    } else {
-      navigate('confirm')
-    }
+  const onSubmit = ({ email }: ForgotPassword) => {
+    return recoveryPassword(email).then(() => navigate('confirm'))
   }
 
   return (
@@ -69,7 +52,6 @@ export const ForgotPasswordPage: React.FC = () => {
           </Form>
         )}
       </Formik>
-      <AlertMessage text={message?.message} type={message?.type} />
     </>
   )
 }

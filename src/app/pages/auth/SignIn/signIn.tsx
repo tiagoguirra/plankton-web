@@ -1,14 +1,13 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext } from 'react'
 import { Formik } from 'formik'
 import { Footer, Form, Header } from '../style'
 import { ForgotLink, ForgotPassword } from './styles'
-import { InputField } from '../../../styles/InputField'
-import { Button } from '../../../styles/Button'
-import { Link, AlertColor } from '@mui/material'
+import { InputField } from '../../../components/InputField'
+import { Button } from '../../../components/Button'
+import { Link } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../../context/Auth/context'
 import { SignIn } from '../../../types/auth'
-import { AlertMessage } from '../../../styles/Alert'
 import { useTranslation } from 'react-i18next'
 
 const initialValues: SignIn = {
@@ -19,22 +18,15 @@ const initialValues: SignIn = {
 export const SignInPage: React.FC = () => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { signIn } = useContext(AuthContext)
-  const [message, setMessage] = useState<{
-    message: string
-    type: AlertColor
-  }>()
+  const { signIn, resendSignUp } = useContext(AuthContext)
 
   const onSubmit = async (values: SignIn) => {
-    const error = await signIn(values.email, values.password)
-    if (error) {
-      if (error === 'UserNotConfirmedException') {
+    try {
+      await signIn(values.email, values.password)
+    } catch (code) {
+      if (code === 'UserNotConfirmedException') {
+        await resendSignUp(values.email)
         navigate('confirm')
-      } else {
-        setMessage({
-          message: t(error),
-          type: 'error'
-        })
       }
     }
   }
@@ -63,7 +55,10 @@ export const SignInPage: React.FC = () => {
               touched={touched.password}
             />
             <ForgotPassword>
-              <ForgotLink onClick={() => navigate('/forgot-password')} underline="none">
+              <ForgotLink
+                onClick={() => navigate('/forgot-password')}
+                underline="none"
+              >
                 {t('auth.forgot_password')}
               </ForgotLink>
             </ForgotPassword>
@@ -81,7 +76,6 @@ export const SignInPage: React.FC = () => {
         )}
       </Formik>
 
-      <AlertMessage text={message?.message} type={message?.type} />
       <Footer>
         {t('auth.dont_rave_account')} &nbsp;
         <Link
