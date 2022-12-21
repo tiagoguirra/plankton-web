@@ -1,11 +1,15 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
+import { NavBar } from '../Navbar'
+import { Content, Main } from './style'
 
 export const Layout: React.FC = () => {
   return (
-    <div>
-      <p>Layout</p>
-      <Outlet />
-    </div>
+    <Main>
+      <NavBar />
+      <Content>
+        <Outlet />
+      </Content>
+    </Main>
   )
 }

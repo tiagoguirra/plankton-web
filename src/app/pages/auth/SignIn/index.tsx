@@ -23,8 +23,9 @@ export const SignInPage: React.FC = () => {
   const onSubmit = async (values: SignIn) => {
     try {
       await signIn(values.email, values.password)
-    } catch (code) {
-      if (code === 'UserNotConfirmedException') {
+    } catch (error) {
+      // @ts-expect-error
+      if (error?.message === 'UserNotConfirmedException') {
         await resendSignUp(values.email)
         navigate('confirm')
       }
@@ -79,7 +80,7 @@ export const SignInPage: React.FC = () => {
       <Footer>
         {t('auth.dont_rave_account')} &nbsp;
         <Link
-          onClick={() => navigate('/signUp')}
+          onClick={() => navigate('/auth/sign-up')}
           color="secondary"
           underline="none"
         >

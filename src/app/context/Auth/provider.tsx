@@ -16,6 +16,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [recoveryUser, setRecoveryUser] = useState<SignUpProcess>()
   const [user, setUser] = useState<AuthUser | null>()
   const [error, setError] = useState<string | null>()
+  const [loading, setLoading] = useState<boolean>(true)
 
   const signOut = useCallback(async (): Promise<void> => {
     try {
@@ -39,7 +40,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser({
           name: accessToken.payload.name,
           email: accessToken.payload.email,
-          avatar: accessToken.payload?.picture
+          avatar: accessToken.payload?.picture,
+          isFederated: false
         })
         setError(null)
       } catch (err) {
@@ -153,13 +155,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const checkUser = useCallback(async (): Promise<void> => {
     try {
       const { attributes } = await Auth.currentAuthenticatedUser()
+
       setUser({
         name: attributes.name,
         email: attributes.email,
-        avatar: attributes.picture
+        avatar: attributes.picture,
+        isFederated: !!attributes.identities
       })
+      setLoading(false)
     } catch {
       setUser(null)
+      setLoading(false)
     }
   }, [user])
 
@@ -195,8 +201,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, [])
 
+  const changePassword = useCallback(
+    async (oldPassword: string, newPassword: string): Promise<void> => {
+      try {
+        const user = await Auth.currentAuthenticatedUser()
+        await Auth.changePassword(user, oldPassword, newPassword)
+      } catch (err) {
+        // @ts-expect-error
+        const code = err?.code
+        throw new Error(code)
+      }
+    },
+    [user]
+  )
+
+  const changeProfile = useCallback(
+    async (name: string, email: string) => {
+      try {
+        const user = await Auth.currentAuthenticatedUser()
+        await Auth.updateUserAttributes(user, {
+          name,
+          email
+        })
+        await checkUser()
+      } catch (err) {
+        // @ts-expect-error
+        const code = err?.code
+        throw new Error(code)
+      }
+    },
+    [user]
+  )
+
   const providerState = useMemo(
     () => ({
+      loading,
       error,
       user,
       signUpUser,
@@ -209,9 +248,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       resendSignUp,
       recoveryPassword,
       confirmRecoveryPassword,
-      signInWith
+      signInWith,
+      changePassword,
+      changeProfile
     }),
-    [ user, signUpUser, recoveryUser]
+    [user, signUpUser, recoveryUser, loading]
   )
 
   return (

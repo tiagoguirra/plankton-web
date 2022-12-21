@@ -82,7 +82,7 @@ export const SignUpPage: React.FC = () => {
       <Footer>
         {t('auth.already_have_account')} &nbsp;
         <Link
-          onClick={() => navigate('/signIn')}
+          onClick={() => navigate('/auth/sign-in')}
           color="secondary"
           underline="none"
         >

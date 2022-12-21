@@ -1,26 +1,24 @@
 import React, { useContext } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
-import { AuthContext } from '../../context/Auth/context'
-import Auth from './auth'
-import { ConfirmSignUpPage } from './SignUp/confirm'
-import { SignInPage } from './SignIn/signIn'
-import { SignUpPage } from './SignUp'
-import { ForgotPasswordPage } from './RecoveryPassword'
-import { RecoveryCodePage } from './RecoveryPassword/code'
+import { AuthContext } from './context/Auth/context'
+import { AuthPage } from './pages/auth'
+import { ForgotPasswordPage } from './pages/auth/RecoveryPassword'
+import { RecoveryCodePage } from './pages/auth/RecoveryPassword/code'
+import { SignInPage } from './pages/auth/SignIn'
+import { SignUpPage } from './pages/auth/SignUp'
+import { ConfirmSignUpPage } from './pages/auth/SignUp/confirm'
 
-interface ProtectedRouteProps {
+export const ProtectedRoute: React.FC<{
   children: React.ReactNode
-}
-
-export const Protected: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { user } = useContext(AuthContext)
+}> = ({ children }) => {
+  const { user, loading } = useContext(AuthContext)
   const { pathname } = useLocation()
-  console.log('Passou aqui')
+
+  if (loading) return <div>Loading...</div>
   if (!user) {
-    console.log('No user')
     return (
       <Routes>
-        <Route element={<Auth />} path="/">
+        <Route element={<AuthPage />} path="/auth">
           <Route path="sign-up">
             <Route element={<SignUpPage />} index />
             <Route element={<ConfirmSignUpPage />} path="confirm" />
@@ -34,10 +32,14 @@ export const Protected: React.FC<ProtectedRouteProps> = ({ children }) => {
             <Route element={<RecoveryCodePage />} path="confirm" />
           </Route>
         </Route>
+        <Route element={<Navigate to="/auth/sign-up" />} path="*" />
       </Routes>
     )
   }
-  if (pathname === '/') {
+
+  console.log('pathname', pathname)
+
+  if (pathname === '/' || pathname.startsWith('/auth')) {
     return <Navigate to="/dashboard" />
   }
 

@@ -8,6 +8,7 @@
   "LimitExceededException": "Attempt limit exceeded, please try after some time",
   "cognitoHostedUI_failure_invalid_request": "Sign in failed",
   "cognitoHostedUI_failure_": "Sign in failed",
+  "InvalidParameterException": "Invalid parameters",
   "auth": {
     "dont_receive_code": "Didn't receive a code?",
     "resend_code": "Resend code",
@@ -28,5 +29,21 @@
     "send": "Send",
     "recovery_helper": "Enter your email address and we will send you a recovery code",
     "recovery_code_helper": "Enter the recovery code we sent to your email"
+  },
+  "navbar": {
+    "logout": "Logout",
+    "profile": "Profile",
+    "my_projects": "My projects"
+  },
+  "profile": {
+    "tab_profile": "Profile",
+    "tab_password": "Password",
+    "tab_code_repositories": "Code repositories",
+    "name": "Name",
+    "email": "Email",
+    "new_password": "New password",
+    "confirm_password": "Confirm password",
+    "old_password": "Old password",
+    "save": "Save"
   }
 }

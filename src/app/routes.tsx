@@ -2,8 +2,9 @@ import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { AuthProvider } from './context/Auth/provider'
-import { Protected } from './pages/auth/protected'
 import { DashboardPage } from './pages/dashboard'
+import { ProfilePage } from './pages/profile'
+import { ProtectedRoute } from './protected'
 
 const Router = () => {
   return (
@@ -12,13 +13,14 @@ const Router = () => {
         <Route
           element={
             <AuthProvider>
-              <Protected>
+              <ProtectedRoute>
                 <Layout />
-              </Protected>
+              </ProtectedRoute>
             </AuthProvider>
           }
           path="*"
         >
+          <Route element={<ProfilePage />} path="profile/*" />
           <Route element={<DashboardPage />} path="dashboard" />
         </Route>
       </Routes>

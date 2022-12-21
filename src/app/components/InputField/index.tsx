@@ -11,6 +11,7 @@ interface InputTextProps {
   error?: string
   touched?: boolean
   disabled?: boolean
+  defaultValue?: string
 }
 
 export const InputField: React.FC<InputTextProps> = ({
@@ -20,7 +21,8 @@ export const InputField: React.FC<InputTextProps> = ({
   error,
   touched,
   onChange = () => {},
-  disabled
+  disabled,
+  defaultValue = ''
 }) => {
   const [showPassword, setShowPassword] = useState(false)
 
@@ -40,13 +42,13 @@ export const InputField: React.FC<InputTextProps> = ({
       </IconButton>
     </InputAdornment>
   )
-
   return (
     <Control fullWidth variant="outlined">
       <Label shrink htmlFor={name}>
         {label}
       </Label>
       <Input
+        defaultValue={defaultValue}
         type={showPassword ? 'text' : type}
         name={name}
         size="small"

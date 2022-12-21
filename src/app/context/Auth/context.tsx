@@ -19,6 +19,9 @@ export interface AuthContextType {
   setRecovery: (user: SignUpProcess) => void
   error?: string | null
   signInWith: (provider: string) => Promise<void>
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
+  changeProfile: (name: string, email: string) => Promise<void>
+  loading: boolean
 }
 
 export const AuthContext = createContext<AuthContextType>(null!)

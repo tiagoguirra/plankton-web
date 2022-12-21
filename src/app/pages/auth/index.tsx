@@ -9,13 +9,13 @@ import { AuthContext } from '../../context/Auth/context'
 import { AlertMessage } from '../../components/Alert'
 import { useTranslation } from 'react-i18next'
 
-const Auth: React.FC = () => {
+export const AuthPage: React.FC = () => {
   const { pathname } = useLocation()
   const { t } = useTranslation()
   const { error, signInWith, user } = useContext(AuthContext)
-  console.log('pathname', pathname)
+
   if (user) return <Navigate to="/dashboard" />
-  if (pathname === '/') return <Navigate to="/sign-in" />
+  if (pathname === '/auth') return <Navigate to="/auth/sign-in" />
   return (
     <Container>
       <CardBox>
@@ -44,4 +44,3 @@ const Auth: React.FC = () => {
   )
 }
 
-export default Auth
