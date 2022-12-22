@@ -1,12 +1,15 @@
-import test from './staging'
+import staging from './staging'
 import production from './production'
 import development from './development'
 
-console.log(process.env.NODE_ENV)
+console.log(process.env.REACT_APP_ENV)
 
-const config = {
-  test,
+const config: { [env: string]: any } = {
+  staging,
   production,
   development
 }
-export default config[process.env.NODE_ENV]
+
+const env = process.env.REACT_APP_ENV || 'development'
+
+export default config[env] || development
